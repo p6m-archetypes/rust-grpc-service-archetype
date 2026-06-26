@@ -40,6 +40,7 @@ pub struct Builder {
 }
 
 impl Builder {
+    #[allow(clippy::new_without_default)]
     pub fn new({% if persistence ~= 'None' %}db: PersistencePool{% endif %}) -> Self {
         Self {
 {% if persistence ~= 'None' %}            db,
