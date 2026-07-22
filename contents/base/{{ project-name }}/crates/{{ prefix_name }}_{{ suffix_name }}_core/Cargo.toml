@@ -11,8 +11,11 @@ edition.workspace = true
 anyhow = "1"
 prost = "0.13"
 serde = { version = "1", features = ["derive"] }
-tonic = "0.12"
+{% if persistence == 'PostgreSQL' %}sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls"] }
+{% endif %}{% if persistence == 'MySQL' %}sqlx = { version = "0.8", features = ["mysql", "runtime-tokio-rustls"] }
+{% endif %}tonic = "0.12"
 tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
 
 [build-dependencies]
 tonic-build = "0.12"

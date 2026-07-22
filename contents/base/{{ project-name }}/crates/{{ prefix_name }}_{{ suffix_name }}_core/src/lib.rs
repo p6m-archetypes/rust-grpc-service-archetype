@@ -1,5 +1,6 @@
 mod r#impl;
 pub mod settings;
+pub mod store;
 
 use anyhow::Result;
 use settings::CoreSettings;
@@ -16,9 +17,8 @@ pub mod proto {
 
 #[derive(Clone)]
 pub struct {{ PrefixName }}{{ SuffixName }}Core {
-{% if persistence ~= 'None' %}    #[allow(dead_code)]
-    pub(crate) db: PersistencePool,
-{% endif %}{% if cache ~= 'None' %}    #[allow(dead_code)]
+    pub(crate) store: store::Store,
+{% if cache ~= 'None' %}    #[allow(dead_code)]
     pub(crate) cache: CachePool,
 {% endif %}{% if messaging ~= 'None' %}    #[allow(dead_code)]
     pub(crate) messaging: MessagingClient,
@@ -67,7 +67,8 @@ impl Builder {
 
 {% endif %}    pub async fn build(self) -> Result<{{ PrefixName }}{{ SuffixName }}Core> {
         Ok({{ PrefixName }}{{ SuffixName }}Core {
-{% if persistence ~= 'None' %}            db: self.db,
+{% if persistence ~= 'None' %}            store: store::Store::new(self.db),
+{% else %}            store: store::Store::default(),
 {% endif %}{% if cache ~= 'None' %}            cache: self.cache.expect("cache must be initialized with with_cache()"),
 {% endif %}{% if messaging ~= 'None' %}            messaging: self.messaging.expect("messaging must be initialized with with_messaging()"),
 {% endif %}            settings: self.settings,

@@ -1,47 +1,73 @@
 use tonic::{Request, Response, Status};
-use tracing::info;
 
-use crate::{{ PrefixName }}{{ SuffixName }}Core;
 use crate::proto::{{ prefix_name }}_{{ suffix_name }}_server::{{ PrefixName }}{{ SuffixName }};
 use crate::proto::{
-    {{ PrefixName }}, Get{{ PrefixName }}Request, List{{ PrefixName }}sRequest, List{{ PrefixName }}sResponse,
+    Create{{ PrefixName }}Request, Delete{{ PrefixName }}Request, Delete{{ PrefixName }}Response,
+    Get{{ PrefixName }}Request, List{{ PrefixName }}sRequest, List{{ PrefixName }}sResponse,
+    Update{{ PrefixName }}Request, {{ PrefixName }},
 };
+use crate::{{ PrefixName }}{{ SuffixName }}Core;
+
+fn internal(err: anyhow::Error) -> Status {
+    tracing::error!("store error: {err:#}");
+    Status::internal("internal error")
+}
 
 #[tonic::async_trait]
 impl {{ PrefixName }}{{ SuffixName }} for {{ PrefixName }}{{ SuffixName }}Core {
     async fn create_{{ prefix_name }}(
         &self,
-        request: Request<{{ PrefixName }}>,
+        request: Request<Create{{ PrefixName }}Request>,
     ) -> Result<Response<{{ PrefixName }}>, Status> {
-        let _req = request.into_inner();
-        info!("create_{{ prefix_name }} called");
-        Err(Status::unimplemented("create_{{ prefix_name }} not implemented"))
+        let req = request.into_inner();
+        let created = self.store.create(&req.display_name).await.map_err(internal)?;
+        Ok(Response::new(created))
     }
 
     async fn get_{{ prefix_name }}(
         &self,
         request: Request<Get{{ PrefixName }}Request>,
     ) -> Result<Response<{{ PrefixName }}>, Status> {
-        let _req = request.into_inner();
-        info!("get_{{ prefix_name }} called");
-        Err(Status::unimplemented("get_{{ prefix_name }} not implemented"))
+        let req = request.into_inner();
+        match self.store.get(&req.id).await.map_err(internal)? {
+            Some(entity) => Ok(Response::new(entity)),
+            None => Err(Status::not_found(format!("no {{ prefix_name }} with id {}", req.id))),
+        }
     }
 
     async fn list_{{ prefix_name }}s(
         &self,
-        request: Request<List{{ PrefixName }}sRequest>,
+        _request: Request<List{{ PrefixName }}sRequest>,
     ) -> Result<Response<List{{ PrefixName }}sResponse>, Status> {
-        let _req = request.into_inner();
-        info!("list_{{ prefix_name }}s called");
-        Err(Status::unimplemented("list_{{ prefix_name }}s not implemented"))
+        let items = self.store.list().await.map_err(internal)?;
+        Ok(Response::new(List{{ PrefixName }}sResponse { items }))
     }
 
     async fn update_{{ prefix_name }}(
         &self,
-        request: Request<{{ PrefixName }}>,
+        request: Request<Update{{ PrefixName }}Request>,
     ) -> Result<Response<{{ PrefixName }}>, Status> {
-        let _req = request.into_inner();
-        info!("update_{{ prefix_name }} called");
-        Err(Status::unimplemented("update_{{ prefix_name }} not implemented"))
+        let req = request.into_inner();
+        match self
+            .store
+            .update(&req.id, &req.display_name)
+            .await
+            .map_err(internal)?
+        {
+            Some(entity) => Ok(Response::new(entity)),
+            None => Err(Status::not_found(format!("no {{ prefix_name }} with id {}", req.id))),
+        }
+    }
+
+    async fn delete_{{ prefix_name }}(
+        &self,
+        request: Request<Delete{{ PrefixName }}Request>,
+    ) -> Result<Response<Delete{{ PrefixName }}Response>, Status> {
+        let req = request.into_inner();
+        if self.store.delete(&req.id).await.map_err(internal)? {
+            Ok(Response::new(Delete{{ PrefixName }}Response {}))
+        } else {
+            Err(Status::not_found(format!("no {{ prefix_name }} with id {}", req.id)))
+        }
     }
 }
