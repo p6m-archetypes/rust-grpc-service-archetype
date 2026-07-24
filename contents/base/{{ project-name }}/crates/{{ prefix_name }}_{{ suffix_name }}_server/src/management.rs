@@ -1,9 +1,9 @@
 use crate::readiness::ReadinessState;
-use axum::Router;
 use axum::extract::State;
-use axum::http::{StatusCode, header};
+use axum::http::{header, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::get;
+use axum::Router;
 use metrics_exporter_prometheus::{PrometheusBuilder, PrometheusHandle};
 use tokio::net::TcpListener;
 
@@ -39,7 +39,10 @@ async fn readiness_check(State(readiness): State<ReadinessState>) -> impl IntoRe
     if readiness.is_ready().await {
         (StatusCode::OK, axum::Json(serde_json::json!({"status": "ok"})))
     } else {
-        (StatusCode::SERVICE_UNAVAILABLE, axum::Json(serde_json::json!({"status": "not_ready"})))
+        (
+            StatusCode::SERVICE_UNAVAILABLE,
+            axum::Json(serde_json::json!({"status": "not_ready"})),
+        )
     }
 }
 

@@ -9,10 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .file_descriptor_set_path(out_dir.join("{{ prefix_name }}_{{ suffix_name }}_descriptor.bin"))
         .build_server(true)
         .build_client(false)
-        .compile_protos(
-            &["../../specs/self/{{ prefix_name }}_{{ suffix_name }}.proto"],
-            &["../../specs/self"],
-        )?;
+        .compile_protos(&["../../specs/self/{{ prefix_name }}_{{ suffix_name }}.proto"], &["../../specs/self"])?;
 
     Ok(())
 }

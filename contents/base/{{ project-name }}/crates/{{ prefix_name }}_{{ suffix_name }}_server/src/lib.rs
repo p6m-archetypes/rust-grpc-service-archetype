@@ -7,9 +7,9 @@ use readiness::ReadinessState;
 use tokio::net::TcpListener;
 use tokio_stream::wrappers::TcpListenerStream;
 use tonic::transport::Server;
+
 use {{ prefix_name }}_{{ suffix_name }}_core::{
-    {{ PrefixName }}{{ SuffixName }}Core,
-    proto::{{ prefix_name }}_{{ suffix_name }}_server::{{ PrefixName }}{{ SuffixName }}Server as {{ PrefixName }}{{ SuffixName }}ProtoServer,
+    proto::{{ prefix_name }}_{{ suffix_name }}_server::{{ PrefixName }}{{ SuffixName }}Server as {{ PrefixName }}{{ SuffixName }}ProtoServer, {{ PrefixName }}{{ SuffixName }}Core,
 };
 
 pub use settings::ServerSettings;
@@ -83,9 +83,7 @@ impl {{ PrefixName }}{{ SuffixName }}Server {
             .await;
 
         let reflection = tonic_reflection::server::Builder::configure()
-            .register_encoded_file_descriptor_set(
-                {{ prefix_name }}_{{ suffix_name }}_core::proto::FILE_DESCRIPTOR_SET,
-            )
+            .register_encoded_file_descriptor_set({{ prefix_name }}_{{ suffix_name }}_core::proto::FILE_DESCRIPTOR_SET)
             .build_v1()
             .unwrap();
 

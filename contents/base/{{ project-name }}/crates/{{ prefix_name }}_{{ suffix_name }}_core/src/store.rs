@@ -6,8 +6,10 @@
 use crate::proto::{{ PrefixName }};
 use uuid::Uuid;
 {% if has_persistence %}
+
 use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
 {% else %}
+
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 {% endif %}
@@ -24,30 +26,37 @@ impl Store {
 
     pub async fn create(&self, display_name: &str) -> anyhow::Result<{{ PrefixName }}> {
         let id = Uuid::new_v4().to_string();
-{% if persistence == 'MySQL' %}        sqlx::query("INSERT INTO {{ prefix_name }}s (id, display_name) VALUES (?, ?)")
-{% else %}        sqlx::query("INSERT INTO {{ prefix_name }}s (id, display_name) VALUES ($1, $2)")
-{% endif %}            .bind(&id)
+{% if persistence == 'MySQL' %}
+        sqlx::query("INSERT INTO {{ prefix_name }}s (id, display_name) VALUES (?, ?)")
+{% else %}
+        sqlx::query("INSERT INTO {{ prefix_name }}s (id, display_name) VALUES ($1, $2)")
+{% endif %}
+            .bind(&id)
             .bind(display_name)
             .execute(self.db.pool())
             .await?;
-        Ok({{ PrefixName }} { id, display_name: display_name.to_string() })
+        Ok({{ PrefixName }} {
+            id,
+            display_name: display_name.to_string(),
+        })
     }
 
     pub async fn get(&self, id: &str) -> anyhow::Result<Option<{{ PrefixName }}>> {
-        let row: Option<(String, String)> =
-{% if persistence == 'MySQL' %}            sqlx::query_as("SELECT id, display_name FROM {{ prefix_name }}s WHERE id = ?")
-{% else %}            sqlx::query_as("SELECT id, display_name FROM {{ prefix_name }}s WHERE id = $1")
-{% endif %}                .bind(id)
-                .fetch_optional(self.db.pool())
-                .await?;
+{% if persistence == 'MySQL' %}
+        let row: Option<(String, String)> = sqlx::query_as("SELECT id, display_name FROM {{ prefix_name }}s WHERE id = ?")
+{% else %}
+        let row: Option<(String, String)> = sqlx::query_as("SELECT id, display_name FROM {{ prefix_name }}s WHERE id = $1")
+{% endif %}
+            .bind(id)
+            .fetch_optional(self.db.pool())
+            .await?;
         Ok(row.map(|(id, display_name)| {{ PrefixName }} { id, display_name }))
     }
 
     pub async fn list(&self) -> anyhow::Result<Vec<{{ PrefixName }}>> {
-        let rows: Vec<(String, String)> =
-            sqlx::query_as("SELECT id, display_name FROM {{ prefix_name }}s ORDER BY id")
-                .fetch_all(self.db.pool())
-                .await?;
+        let rows: Vec<(String, String)> = sqlx::query_as("SELECT id, display_name FROM {{ prefix_name }}s ORDER BY id")
+            .fetch_all(self.db.pool())
+            .await?;
         Ok(rows
             .into_iter()
             .map(|(id, display_name)| {{ PrefixName }} { id, display_name })
@@ -55,15 +64,15 @@ impl Store {
     }
 
     pub async fn update(&self, id: &str, display_name: &str) -> anyhow::Result<Option<{{ PrefixName }}>> {
-        let result =
-{% if persistence == 'MySQL' %}            sqlx::query("UPDATE {{ prefix_name }}s SET display_name = ? WHERE id = ?")
-                .bind(display_name)
-                .bind(id)
-{% else %}            sqlx::query("UPDATE {{ prefix_name }}s SET display_name = $1 WHERE id = $2")
-                .bind(display_name)
-                .bind(id)
-{% endif %}                .execute(self.db.pool())
-                .await?;
+{% if persistence == 'MySQL' %}
+        let result = sqlx::query("UPDATE {{ prefix_name }}s SET display_name = ? WHERE id = ?")
+{% else %}
+        let result = sqlx::query("UPDATE {{ prefix_name }}s SET display_name = $1 WHERE id = $2")
+{% endif %}
+            .bind(display_name)
+            .bind(id)
+            .execute(self.db.pool())
+            .await?;
         if result.rows_affected() == 0 {
             return Ok(None);
         }
@@ -74,9 +83,12 @@ impl Store {
     }
 
     pub async fn delete(&self, id: &str) -> anyhow::Result<bool> {
-{% if persistence == 'MySQL' %}        let result = sqlx::query("DELETE FROM {{ prefix_name }}s WHERE id = ?")
-{% else %}        let result = sqlx::query("DELETE FROM {{ prefix_name }}s WHERE id = $1")
-{% endif %}            .bind(id)
+{% if persistence == 'MySQL' %}
+        let result = sqlx::query("DELETE FROM {{ prefix_name }}s WHERE id = ?")
+{% else %}
+        let result = sqlx::query("DELETE FROM {{ prefix_name }}s WHERE id = $1")
+{% endif %}
+            .bind(id)
             .execute(self.db.pool())
             .await?;
         Ok(result.rows_affected() > 0)
@@ -129,12 +141,7 @@ impl Store {
     }
 
     pub async fn delete(&self, id: &str) -> anyhow::Result<bool> {
-        Ok(self
-            .items
-            .write()
-            .expect("store lock poisoned")
-            .remove(id)
-            .is_some())
+        Ok(self.items.write().expect("store lock poisoned").remove(id).is_some())
     }
 }
 {% endif %}
