@@ -5,27 +5,27 @@ mod cli;
 mod otel;
 mod settings;
 
-use {{ prefix_name }}_{{ suffix_name }}_core::{{ PrefixName }}{{ SuffixName }}Core;
-use {{ prefix_name }}_{{ suffix_name }}_server::{{ PrefixName }}{{ SuffixName }}Server;
+use {{ project_name }}_core::{{ ProjectName }}Core;
+use {{ project_name }}_server::{{ ProjectName }}Server;
 {% if persistence ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
+use {{ project_name }}_persistence::PersistencePool;
 {% endif %}
 {% if cache ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_cache::connect as cache_connect;
+use {{ project_name }}_cache::connect as cache_connect;
 {% endif %}
 {% if messaging ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_messaging::MessagingClient;
+use {{ project_name }}_messaging::MessagingClient;
 {% endif %}
 {% if has_s3 %}
 
-use {{ prefix_name }}_{{ suffix_name }}_storage_s3::connect as s3_connect;
+use {{ project_name }}_storage_s3::connect as s3_connect;
 {% endif %}
 {% if has_azure_blob %}
 
-use {{ prefix_name }}_{{ suffix_name }}_storage_azure::connect as azure_connect;
+use {{ project_name }}_storage_azure::connect as azure_connect;
 {% endif %}
 
 #[tokio::main]
@@ -79,7 +79,7 @@ async fn main() -> Result<()> {
 {% if has_azure_blob %}
             let _azure = azure_connect(&settings.storage_azure)?;
 {% endif %}
-            let core = {{ PrefixName }}{{ SuffixName }}Core::builder({% if persistence ~= 'None' %}db{% endif %})
+            let core = {{ ProjectName }}Core::builder({% if persistence ~= 'None' %}db{% endif %})
                 .with_settings(&settings.core)
 {% if cache ~= 'None' %}
                 .with_cache(cache)
@@ -90,7 +90,7 @@ async fn main() -> Result<()> {
                 .build()
                 .await?;
 
-            let server = {{ PrefixName }}{{ SuffixName }}Server::builder(core)
+            let server = {{ ProjectName }}Server::builder(core)
                 .with_settings(&settings.server)
                 .build()
                 .await?;

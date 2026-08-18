@@ -1,5 +1,5 @@
-use {{ prefix_name }}_{{ suffix_name }}_core::settings::CoreSettings;
-use {{ prefix_name }}_{{ suffix_name }}_server::ServerSettings;
+use {{ project_name }}_core::settings::CoreSettings;
+use {{ project_name }}_server::ServerSettings;
 
 use figment::{
     providers::{Env, Format, Serialized, Toml},
@@ -8,23 +8,23 @@ use figment::{
 use serde::{Deserialize, Serialize};
 {% if persistence ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_persistence::settings::PersistenceSettings;
+use {{ project_name }}_persistence::settings::PersistenceSettings;
 {% endif %}
 {% if cache ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_cache::settings::CacheSettings;
+use {{ project_name }}_cache::settings::CacheSettings;
 {% endif %}
 {% if messaging ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_messaging::settings::MessagingSettings;
+use {{ project_name }}_messaging::settings::MessagingSettings;
 {% endif %}
 {% if has_s3 %}
 
-use {{ prefix_name }}_{{ suffix_name }}_storage_s3::settings::StorageS3Settings;
+use {{ project_name }}_storage_s3::settings::StorageS3Settings;
 {% endif %}
 {% if has_azure_blob %}
 
-use {{ prefix_name }}_{{ suffix_name }}_storage_azure::settings::StorageAzureSettings;
+use {{ project_name }}_storage_azure::settings::StorageAzureSettings;
 {% endif %}
 
 #[derive(Debug, Default, Deserialize, Serialize)]

@@ -6,10 +6,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=../../specs/self");
 
     tonic_build::configure()
-        .file_descriptor_set_path(out_dir.join("{{ prefix_name }}_{{ suffix_name }}_descriptor.bin"))
+        .file_descriptor_set_path(out_dir.join("{{ project_name }}_descriptor.bin"))
         .build_server(false)
         .build_client(true)
-        .compile_protos(&["../../specs/self/{{ prefix_name }}_{{ suffix_name }}.proto"], &["../../specs/self"])?;
+        .compile_protos(&["../../specs/self/{{ project_name }}.proto"], &["../../specs/self"])?;
 
     Ok(())
 }

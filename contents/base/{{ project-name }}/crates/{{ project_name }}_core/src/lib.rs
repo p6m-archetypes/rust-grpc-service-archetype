@@ -6,25 +6,25 @@ use anyhow::Result;
 use settings::CoreSettings;
 {% if persistence ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
+use {{ project_name }}_persistence::PersistencePool;
 {% endif %}
 {% if cache ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_cache::CachePool;
+use {{ project_name }}_cache::CachePool;
 {% endif %}
 {% if messaging ~= 'None' %}
 
-use {{ prefix_name }}_{{ suffix_name }}_messaging::MessagingClient;
+use {{ project_name }}_messaging::MessagingClient;
 {% endif %}
 
 pub mod proto {
-    tonic::include_proto!("{{ prefix_name }}_{{ suffix_name }}");
+    tonic::include_proto!("{{ project_name }}");
 
-    pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("{{ prefix_name }}_{{ suffix_name }}_descriptor");
+    pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("{{ project_name }}_descriptor");
 }
 
 #[derive(Clone)]
-pub struct {{ PrefixName }}{{ SuffixName }}Core {
+pub struct {{ ProjectName }}Core {
     pub(crate) store: store::Store,
 {% if cache ~= 'None' %}
     #[allow(dead_code)]
@@ -38,7 +38,7 @@ pub struct {{ PrefixName }}{{ SuffixName }}Core {
     settings: CoreSettings,
 }
 
-impl {{ PrefixName }}{{ SuffixName }}Core {
+impl {{ ProjectName }}Core {
     pub fn builder({% if persistence ~= 'None' %}db: PersistencePool{% endif %}) -> Builder {
         Builder::new({% if persistence ~= 'None' %}db{% endif %})
     }
@@ -93,8 +93,8 @@ impl Builder {
     }
 
 {% endif %}
-    pub async fn build(self) -> Result<{{ PrefixName }}{{ SuffixName }}Core> {
-        Ok({{ PrefixName }}{{ SuffixName }}Core {
+    pub async fn build(self) -> Result<{{ ProjectName }}Core> {
+        Ok({{ ProjectName }}Core {
 {% if persistence ~= 'None' %}
             store: store::Store::new(self.db),
 {% else %}

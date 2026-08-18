@@ -17,7 +17,7 @@ pub fn routes(readiness: ReadinessState) -> Router {
 
     // Seed a build-info family so /metrics is meaningful from the first scrape.
     metrics::gauge!(
-        "{{ prefix_name }}_{{ suffix_name }}_build_info",
+        "{{ project_name }}_build_info",
         "version" => env!("CARGO_PKG_VERSION")
     )
     .set(1.0);
