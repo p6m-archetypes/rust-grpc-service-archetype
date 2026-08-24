@@ -17,6 +17,9 @@ use {{ project_name }}_cache::CachePool;
 use {{ project_name }}_messaging::MessagingClient;
 {% endif %}
 
+// Generated tonic stubs (client included): clippy::result_large_err fires on the generated
+// connect() under -D warnings. Not ours to fix — allow it on the generated module only.
+#[allow(clippy::result_large_err)]
 pub mod proto {
     tonic::include_proto!("{{ project_name }}");
 
