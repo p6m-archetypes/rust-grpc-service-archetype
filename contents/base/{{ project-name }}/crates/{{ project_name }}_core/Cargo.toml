@@ -1,0 +1,21 @@
+[package]
+name = "{{ project_name }}_core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+{% if persistence ~= 'None' %}{{ project_name }}_persistence = { path = "../{{ project_name }}_persistence" }
+{% endif %}{% if cache ~= 'None' %}{{ project_name }}_cache = { path = "../{{ project_name }}_cache" }
+{% endif %}{% if messaging ~= 'None' %}{{ project_name }}_messaging = { path = "../{{ project_name }}_messaging" }
+{% endif %}
+anyhow = "1"
+prost = "0.13"
+serde = { version = "1", features = ["derive"] }
+{% if persistence == 'PostgreSQL' %}sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls"] }
+{% endif %}{% if persistence == 'MySQL' %}sqlx = { version = "0.8", features = ["mysql", "runtime-tokio-rustls"] }
+{% endif %}tonic = "0.12"
+tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
+
+[build-dependencies]
+tonic-build = "0.12"
